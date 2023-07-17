@@ -4,9 +4,7 @@ const NoteItem = ({ note }) => {
   console.log(note);
   const context = useContext(NoteContext);
   const { deleteNote } = context;
-  const handleDelete = (id) => {
-    deleteNote(note._id);
-  };
+  
   return (
     <div className="col-md-3">
       <div className="card my-3">
@@ -16,7 +14,7 @@ const NoteItem = ({ note }) => {
               {note.title}{" "}
               <i
                 className="fa fa-trash mx-2"
-                onClick={() => handleDelete(note._id)}
+                onClick={() => deleteNote(note._id)}
               ></i>{" "}
             </h5>
           </div>

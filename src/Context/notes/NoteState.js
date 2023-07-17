@@ -11,12 +11,13 @@ const NoteState = (props) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "auth-token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjQ5ZmJiOTk5ZTY2NDRkNTYwNWE5NDA5In0sImlhdCI6MTY4ODE4OTg0OX0.CRB77R573QyntmS4QrLBZvvDsjHBN2VZOMVuoxN9Isg"
+        "auth-token":
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjQ5ZmJiOTk5ZTY2NDRkNTYwNWE5NDA5In0sImlhdCI6MTY4ODE4OTg0OX0.CRB77R573QyntmS4QrLBZvvDsjHBN2VZOMVuoxN9Isg",
       },
     });
     const json = await response.json();
     console.log(json);
-    // setNotes(json)
+    setNotes(json);
   };
 
   const addNote = async (title, description, tag) => {
@@ -24,7 +25,7 @@ const NoteState = (props) => {
     const response = await fetch(`${host}/api/notes/addnote`, {
       method: "POST",
       headers: {
-        'Content-Type':'application/json',
+        "Content-Type": "application/json",
         "auth-token":
           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjQ5ZmJiOTk5ZTY2NDRkNTYwNWE5NDA5In0sImlhdCI6MTY4ODE4OTg0OX0.CRB77R573QyntmS4QrLBZvvDsjHBN2VZOMVuoxN9Isg",
       },
@@ -42,9 +43,17 @@ const NoteState = (props) => {
     };
     setNotes(notes.concat(note));
   };
-  const deleteNote = (id) => {
-    
-    const filteredNote = notes.filter((note) => note._id !== id);
+  const deleteNote = async(id) => {
+    const response = await fetch(`${host}/api/notes/deletenote/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "auth-token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjRiNTBlZGQ1OTczNzhjOGFlOWZlNmE0In0sImlhdCI6MTY4OTU4NzQyMX0.Aur9K_sD8HDiYrqCrojG2xKShKnkZy9u8Xmj-0s6cjY"
+      },
+    });
+    const json = response.json();
+
+    const filteredNote = notes.filter((note) =>{return note._id !== id} );
     setNotes(filteredNote);
   };
   const editNote = async (id, title, description, tag) => {
@@ -52,8 +61,9 @@ const NoteState = (props) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        "auth-token":
+          "auth-token":
           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjQ5ZmJiOTk5ZTY2NDRkNTYwNWE5NDA5In0sImlhdCI6MTY4ODE4OTg0OX0.CRB77R573QyntmS4QrLBZvvDsjHBN2VZOMVuoxN9Isg",
+
       },
       body: JSON.stringify({ title, description, tag }),
     });
