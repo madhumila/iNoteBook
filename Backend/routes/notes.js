@@ -6,9 +6,6 @@ const { body, validationResult } = require("express-validator");
 
 // rote1:get all the notes using GET
 router.get("/fetchallnotes", fetchuser, async (req, res) => {
-  res.header('Access-Control-Allow-Origin','*');
-    res.header('Access-Control-Allow-Methods', 'GET');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   const notes = await Notes.find({ user: req.user.id });
   res.json(notes);
 });

@@ -4,7 +4,7 @@ const User = require("../Models/User");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs/dist/bcrypt");
 const jwt = require("jsonwebtoken");
-var fetchuser = require("../middleware/fetchuser")
+var fetchuser = require("../middleware/fetchuser");
 
 const JWT_SECRET = "milaisagoodgi$rl";
 
@@ -18,11 +18,11 @@ router.post(
     }),
   ],
   async (req, res) => {
+    let success = false;
     // if there are errors,return bad request and the error
     const errors = validationResult(req);
-
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ success, errors: errors.array() });
     }
 
     try {
@@ -32,7 +32,11 @@ router.post(
       if (user) {
         return res
           .status(400)
-          .json({ error: "sorry a user with this email already exist" });
+          .json({
+            success,
+            error: "sorry a user with this email already exist",
+            
+          });
       }
       const salt = await bcrypt.genSalt(10);
       const secPass = await bcrypt.hash(req.body.password, salt);
@@ -47,11 +51,10 @@ router.post(
         },
       };
       const authtoken = jwt.sign(data, JWT_SECRET);
-
-      res.json({ authtoken });
+      success = true; 
+      res.json({ success, authtoken });
 
       console.log("created user", user);
-      res.json(user);
     } catch (error) {
       console.log(error.message);
       res.status(500).send("some error occured");
@@ -67,6 +70,7 @@ router.post(
     body("password", "password can not be blank").exists(),
   ],
   async (req, res) => {
+    let success = false;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -75,15 +79,19 @@ router.post(
     try {
       let user = await User.findOne({ email });
       if (!user) {
+        success = false;
+        console.log("ok");
         return res
           .status(400)
           .json({ error: "Please try to login with correct credentials" });
       }
       const passwordCompare = await bcrypt.compare(password, user.password);
       if (!passwordCompare) {
-        return res
-          .status(400)
-          .json({ error: "Please try to login with correct credentials" });
+        success = false;
+        return res.status(400).json({
+          success,
+          error: "Please try to login with correct credentials",
+        });
       }
       const data = {
         user: {
@@ -91,8 +99,8 @@ router.post(
         },
       };
       const authtoken = jwt.sign(data, JWT_SECRET);
-
-      res.json({ authtoken });
+      success = true;
+      res.json({ success, authtoken });
     } catch {
       console.error(errors.message);
       res.status(500).send("internal server error");
@@ -100,17 +108,14 @@ router.post(
   }
 );
 // Rote 3 get logged in user details
-router.post(
-  "/getuser",fetchuser,
-  async (req, res) => {
-    try {
-      userId = req.user.id;
-      const user = await User.findById(userId).select("-passwword");
-      res.send(user)
-    } catch (error) {
-      console.error(error.message);
-      res.status(500).send("internal server error");
-    }
+router.post("/getuser", fetchuser, async (req, res) => {
+  try {
+    userId = req.user.id;
+    const user = await User.findById(userId).select("-passwword");
+    res.send(user);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("internal server error");
   }
-);
+});
 module.exports = router;
